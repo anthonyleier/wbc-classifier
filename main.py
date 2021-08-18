@@ -6,23 +6,20 @@ import PIL.Image
 import tensorflow as tf
 import pathlib
 
-print("Inicialização")
-#Definição do Arquivo
+
+#####Leitura do Dataset
+print("Leitura do Dataset")
+
 dataset = "./dataset"
 dataset = pathlib.Path(dataset)
 
 #Contagem
 contagem = len(list(dataset.glob('*/*.jpg')))
-print(contagem)
+print("Existem", contagem, "imagens nesse dataset")
 
-#Teste de imagem 1
-basophil = list(dataset.glob('basophil/*'))
-PIL.Image.open(str(basophil[0]))
 
-#Teste de imagem 2
-basophil = list(dataset.glob('basophil/*'))
-PIL.Image.open(str(basophil[1]))
-
+#####Pré-Processamento dos Dados
+print("Pré-Processamento dos Dados")
 #Parâmetros
 batch = 32
 height = 180
@@ -50,8 +47,11 @@ test_ds = tf.keras.preprocessing.image_dataset_from_directory(
 
 #Nomes das classes
 classes = train_ds.class_names
-print(classes)
+print("Classes encontadas:", classes)
 
+
+#####Padronização dos Dados
+print("Padronização dos Dados")
 from tensorflow.keras import layers
 normalization_layer = tf.keras.layers.experimental.preprocessing.Rescaling(1./255) #Camada de reescalonamento
 
@@ -60,14 +60,19 @@ image_batch, labels_batch = next(iter(normalized_ds))
 first_image = image_batch[0]
 print(np.min(first_image), np.max(first_image)) #Imprime o menor e o maior valor de pixel da imagem, portanto foi normalizado com sucesso
 
+
+#####Configurações de Desempenho
+print("Configurações de Desempenho")
 AUTOTUNE = tf.data.AUTOTUNE
 #Dois metodos aplicados nos datasets de treino e teste
 train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE) 
 test_ds = test_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
-#Treinamento de Modelo
 
-qtdClasses = 8
+#####Treinamento do Modelo
+print("Treinamento do Modelo")
+
+qtdClasses = len(classes)
 
 model = tf.keras.Sequential([
     layers.experimental.preprocessing.Rescaling(1./255),
@@ -81,18 +86,21 @@ model = tf.keras.Sequential([
     layers.Dense(128, activation='relu'),
     layers.Dense(qtdClasses)
 ])
-print("Compilação")
+
 model.compile(
     optimizer='adam',
     loss=tf.losses.SparseCategoricalCrossentropy(from_logits=True),
     metrics=['accuracy'])
 
-epocas = 1
+epocas = 6
 model.fit(train_ds, validation_data=test_ds, epochs=epocas)
 
+#####Predição de Teste
+print("Predição de Teste")
+
 predicoes = model.predict(test_ds) #Passando o conjunto de imagens de teste
-predicoes[0]
+print(predicoes[0])
 
-np.argmax(predicoes[0])
+print(np.argmax(predicoes[0]))
 
-classes[0]
+print(classes[np.argmax(predicoes[0])])

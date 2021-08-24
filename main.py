@@ -1,11 +1,12 @@
 #Imports
 import numpy as np
 import os
-import PIL
-import PIL.Image
 import tensorflow as tf
 import pathlib
 
+# Anthony Cruz
+# TCC - Trabalho de Conclusão de Curso
+# Documentação Base: https://tensorflow.org/tutorials/images/classification
 
 #####Leitura do Dataset
 print("Leitura do Dataset")
@@ -31,7 +32,7 @@ train_ds = tf.keras.preprocessing.image_dataset_from_directory(
     dataset,
     validation_split=0.2,
     subset="training",
-    seed=123,
+    seed=3141592,
     image_size=(height, width),
     batch_size=batch)
 
@@ -41,13 +42,21 @@ test_ds = tf.keras.preprocessing.image_dataset_from_directory(
     dataset,
     validation_split=0.2,
     subset="validation",
-    seed=123,
+    seed=3141595,
     image_size=(height, width),
     batch_size=batch)
 
 #Nomes das classes
 classes = train_ds.class_names
 print("Classes encontadas:", classes)
+
+
+#####Configurações de Desempenho
+print("Configurações de Desempenho")
+AUTOTUNE = tf.data.AUTOTUNE
+#Dois metodos aplicados nos datasets de treino e teste
+train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE) 
+test_ds = test_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
 
 #####Padronização dos Dados
@@ -59,14 +68,6 @@ normalized_ds = train_ds.map(lambda x, y: (normalization_layer(x), y)) #Normaliz
 image_batch, labels_batch = next(iter(normalized_ds))
 first_image = image_batch[0]
 print(np.min(first_image), np.max(first_image)) #Imprime o menor e o maior valor de pixel da imagem, portanto foi normalizado com sucesso
-
-
-#####Configurações de Desempenho
-print("Configurações de Desempenho")
-AUTOTUNE = tf.data.AUTOTUNE
-#Dois metodos aplicados nos datasets de treino e teste
-train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE) 
-test_ds = test_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
 
 #####Treinamento do Modelo
@@ -104,3 +105,5 @@ print(predicoes[0])
 print(np.argmax(predicoes[0]))
 
 print(classes[np.argmax(predicoes[0])])
+
+# PS: Na documentação existem formas de lidar com Overfitting

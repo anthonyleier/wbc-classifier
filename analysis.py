@@ -1,6 +1,6 @@
-#Imports
+# Imports
+from tensorflow.keras import layers
 import numpy as np
-import os
 import tensorflow as tf
 import pathlib
 
@@ -8,26 +8,26 @@ import pathlib
 # TCC - Trabalho de Conclusão de Curso
 # Documentação Base: https://tensorflow.org/tutorials/images/classification
 
-#####Leitura do Dataset
+# Leitura do Dataset
 print("Leitura do Dataset")
 
-dataset = "./dataset"
+dataset = "./datasets/analysis"
 dataset = pathlib.Path(dataset)
 
-#Contagem
+# Contagem
 contagem = len(list(dataset.glob('*/*.jpg')))
 print("Existem", contagem, "imagens nesse dataset")
 
 
-#####Pré-Processamento dos Dados
+# Pré-Processamento dos Dados
 print("Pré-Processamento dos Dados")
-#Parâmetros
+# Parâmetros
 batch = 32
 height = 180
 width = 180
 
-#80% para o treino
-#20% para o teste
+# 80% para o treino
+# 20% para o teste
 train_ds = tf.keras.preprocessing.image_dataset_from_directory(
     dataset,
     validation_split=0.2,
@@ -36,8 +36,8 @@ train_ds = tf.keras.preprocessing.image_dataset_from_directory(
     image_size=(height, width),
     batch_size=batch)
 
-#80% para o treino
-#20% para o teste
+# 80% para o treino
+# 20% para o teste
 test_ds = tf.keras.preprocessing.image_dataset_from_directory(
     dataset,
     validation_split=0.2,
@@ -46,31 +46,33 @@ test_ds = tf.keras.preprocessing.image_dataset_from_directory(
     image_size=(height, width),
     batch_size=batch)
 
-#Nomes das classes
+# Nomes das classes
 classes = train_ds.class_names
 print("Classes encontadas:", classes)
 
 
-#####Configurações de Desempenho
+# Configurações de Desempenho
 print("Configurações de Desempenho")
 AUTOTUNE = tf.data.AUTOTUNE
-#Dois metodos aplicados nos datasets de treino e teste
-train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE) 
+# Dois metodos aplicados nos datasets de treino e teste
+train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
 test_ds = test_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
 
-#####Padronização dos Dados
+# Padronização dos Dados
 print("Padronização dos Dados")
-from tensorflow.keras import layers
-normalization_layer = tf.keras.layers.experimental.preprocessing.Rescaling(1./255) #Camada de reescalonamento
+normalization_layer = tf.keras.layers.experimental.preprocessing.Rescaling(
+    1./255)  # Camada de reescalonamento
 
-normalized_ds = train_ds.map(lambda x, y: (normalization_layer(x), y)) #Normalização de todo dataset de treino
+# Normalização de todo dataset de treino
+normalized_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
 image_batch, labels_batch = next(iter(normalized_ds))
 first_image = image_batch[0]
-print(np.min(first_image), np.max(first_image)) #Imprime o menor e o maior valor de pixel da imagem, portanto foi normalizado com sucesso
+# Imprime o menor e o maior valor de pixel da imagem, portanto foi normalizado com sucesso
+print(np.min(first_image), np.max(first_image))
 
 
-#####Treinamento do Modelo
+# Treinamento do Modelo
 print("Treinamento do Modelo")
 
 qtdClasses = len(classes)
@@ -96,10 +98,10 @@ model.compile(
 epocas = 6
 model.fit(train_ds, validation_data=test_ds, epochs=epocas)
 
-#####Predição de Teste
+# Predição de Teste
 print("Predição de Teste")
 
-predicoes = model.predict(test_ds) #Passando o conjunto de imagens de teste
+predicoes = model.predict(test_ds)  # Passando o conjunto de imagens de teste
 print(predicoes[0])
 
 print(np.argmax(predicoes[0]))

@@ -1,4 +1,5 @@
 # Imports
+import random
 from tensorflow.keras import layers
 import numpy as np
 import tensorflow as tf
@@ -11,8 +12,11 @@ import pathlib
 # Leitura do Dataset
 print("Leitura do Dataset")
 
-dataset = "./datasets/analysis"
+dataset = "./datasets/preparados/analysis"
 dataset = pathlib.Path(dataset)
+
+# ig = immature granulocytes (metamyelocytes, myelocytes and promyelocytes)
+# ig = granulócitos imaturos (metamielócitos, mielócitos e promielócitos)
 
 # Contagem
 contagem = len(list(dataset.glob('*/*.jpg')))
@@ -95,17 +99,24 @@ model.compile(
     loss=tf.losses.SparseCategoricalCrossentropy(from_logits=True),
     metrics=['accuracy'])
 
-epocas = 6
+epocas = 20
 model.fit(train_ds, validation_data=test_ds, epochs=epocas)
 
 # Predição de Teste
-print("Predição de Teste")
+print("Predições de Teste")
 
 predicoes = model.predict(test_ds)  # Passando o conjunto de imagens de teste
-print(predicoes[0])
+for i in range(0, 5):
+    print("Teste Número", i+1)
+    tamanho = len(predicoes)
+    numero_teste = random.randint(0, tamanho)
 
-print(np.argmax(predicoes[0]))
+    print(predicoes[numero_teste])
 
-print(classes[np.argmax(predicoes[0])])
+    print(np.argmax(predicoes[numero_teste]))
+
+    print(classes[np.argmax(predicoes[numero_teste])])
+    print(" ")
+
 
 # PS: Na documentação existem formas de lidar com Overfitting

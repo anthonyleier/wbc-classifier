@@ -2,8 +2,11 @@
 import random
 from tensorflow.keras import layers
 import numpy as np
+from tensorflow import keras
 import tensorflow as tf
 import pathlib
+
+opcao = int(input("0 para criar modelo ou 1 para carregar modelo:"))
 
 # Anthony Cruz
 # TCC - Trabalho de Conclusão de Curso
@@ -75,32 +78,37 @@ first_image = image_batch[0]
 # Imprime o menor e o maior valor de pixel da imagem, portanto foi normalizado com sucesso
 print(np.min(first_image), np.max(first_image))
 
+if (opcao == 0):
+    # Treinamento do Modelo
+    print("Treinamento do Modelo")
 
-# Treinamento do Modelo
-print("Treinamento do Modelo")
+    qtdClasses = len(classes)
 
-qtdClasses = len(classes)
+    model = tf.keras.Sequential([
+        layers.experimental.preprocessing.Rescaling(1./255),
+        layers.Conv2D(32, 3, activation='relu'),
+        layers.MaxPooling2D(),
+        layers.Conv2D(32, 3, activation='relu'),
+        layers.MaxPooling2D(),
+        layers.Conv2D(32, 3, activation='relu'),
+        layers.MaxPooling2D(),
+        layers.Flatten(),
+        layers.Dense(128, activation='relu'),
+        layers.Dense(qtdClasses)
+    ])
 
-model = tf.keras.Sequential([
-    layers.experimental.preprocessing.Rescaling(1./255),
-    layers.Conv2D(32, 3, activation='relu'),
-    layers.MaxPooling2D(),
-    layers.Conv2D(32, 3, activation='relu'),
-    layers.MaxPooling2D(),
-    layers.Conv2D(32, 3, activation='relu'),
-    layers.MaxPooling2D(),
-    layers.Flatten(),
-    layers.Dense(128, activation='relu'),
-    layers.Dense(qtdClasses)
-])
+    model.compile(
+        optimizer='adam',
+        loss=tf.losses.SparseCategoricalCrossentropy(from_logits=True),
+        metrics=['accuracy'])
 
-model.compile(
-    optimizer='adam',
-    loss=tf.losses.SparseCategoricalCrossentropy(from_logits=True),
-    metrics=['accuracy'])
+    epocas = 20
+    model.fit(train_ds, validation_data=test_ds, epochs=epocas)
 
-epocas = 20
-model.fit(train_ds, validation_data=test_ds, epochs=epocas)
+    print("Salvando modelo")
+    model.save('./models/analysis')
+else:
+    model = keras.models.load_model('./models/analysis')
 
 # Predição de Teste
 print("Predições de Teste")

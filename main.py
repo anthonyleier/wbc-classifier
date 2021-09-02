@@ -15,7 +15,7 @@ opcao = int(input("0 para criar modelo ou 1 para carregar modelo:"))
 # Leitura do Dataset
 print("Leitura do Dataset")
 
-dataset = "./datasets/preparados/analysis"
+dataset = "./dataset"
 dataset = pathlib.Path(dataset)
 
 # ig = immature granulocytes (metamyelocytes, myelocytes and promyelocytes)
@@ -106,9 +106,9 @@ if (opcao == 0):
     model.fit(train_ds, validation_data=test_ds, epochs=epocas)
 
     print("Salvando modelo")
-    model.save('./models/analysis')
+    model.save('./model')
 else:
-    model = keras.models.load_model('./models/analysis')
+    model = keras.models.load_model('./model')
 
 # Predição de Teste
 print("Predições de Teste")

@@ -1,0 +1,2 @@
+# wbc-classifier
+Desenvolvimento de um classificador de células brancas com Tensorflow, utilizando como base a [documentação](https://tensorflow.org/tutorials/images/classification). Seu objetivo é classificar as células brancas em seus diferentes tipos. Este foi o primeiro projeto desenvolvido para o meu TCC sobre detectar células com o uso de Machine Learning. Posteriormente, outra abordagem mais próxima ao trabalho foi necessária e se tornou o [blood-detection](https://github.com/anthonyleier/blood-detection).
